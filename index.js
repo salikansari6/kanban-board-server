@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const dotenv = require("dotenv");
@@ -13,6 +14,10 @@ require("dotenv").config();
 
 const PORT = process.env.PORT || 4000;
 
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }, () => {
+  console.log("connected to DB");
+});
+
 app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
 });
@@ -25,7 +30,7 @@ passport.use(
       callbackURL: "http://localhost:4000/auth/google/callback/",
     },
     function (accessToken, refreshToken, profile, cb) {
-      console.log(accessToken, refreshToken, profile);
+      console.log(profile);
       return cb(null, profile);
 
       // User.findOrCreate({ googleId: profile.id }, function (err, user) {
@@ -34,6 +39,14 @@ passport.use(
     }
   )
 );
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
 app.get("/", (req, res) => {
   res.send("server is working");
@@ -60,11 +73,3 @@ app.get(
     res.redirect("/success");
   }
 );
-
-passport.serializeUser((profile, done) => {
-  done(null, profile);
-});
-
-passport.deserializeUser((profile, done) => {
-  done(null, profile);
-});
