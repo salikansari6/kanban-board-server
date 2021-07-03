@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const dotenv = require("dotenv");
+const User = require("./models/User");
 
 const app = express();
 app.use(express.json());
@@ -29,13 +30,20 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "http://localhost:4000/auth/google/callback/",
     },
-    function (accessToken, refreshToken, profile, cb) {
-      console.log(profile);
-      return cb(null, profile);
+    async function (accessToken, refreshToken, profile, cb) {
+      let user = await User.findOne({ googleId: profile.id });
+      if (!user) {
+        const newUser = new User({
+          name: profile.displayName,
+          photo: profile.photos[0].value,
+          email: profile.email,
+          googleId: profile.id,
+        });
+        user = await newUser.save();
+      }
+      console.log(user);
 
-      // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      //   return cb(err, user);
-      // });
+      cb(null, profile);
     }
   )
 );
