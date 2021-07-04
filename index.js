@@ -24,6 +24,8 @@ app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
 });
 
+app.use("/tasks", require("./routes/tasks"));
+
 passport.use(
   new GoogleStrategy(
     {

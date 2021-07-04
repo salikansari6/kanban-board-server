@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Task = require("./Task");
+const Task = require("./Task").schema;
 const Schema = mongoose.Schema;
 
 const taskGroupSchema = new Schema({
