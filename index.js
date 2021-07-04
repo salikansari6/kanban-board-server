@@ -5,6 +5,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const dotenv = require("dotenv");
 const User = require("./models/User");
+const { deserializeUser } = require("passport");
 
 const app = express();
 app.use(express.json());
@@ -41,19 +42,26 @@ passport.use(
         });
         user = await newUser.save();
       }
-      console.log(user);
 
-      cb(null, profile);
+      cb(null, user);
     }
   )
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user._id);
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser(async (id, done) => {
+  console.log("Deserializing user with id " + id);
+  try {
+    const deserializedUser = await User.findById(id);
+  } catch (err) {
+    done(err, null);
+  }
+  if (deserializedUser) {
+    done(null, deserializedUser);
+  }
 });
 
 app.get("/", (req, res) => {
@@ -65,7 +73,7 @@ app.get("/failed", (req, res) => {
 });
 
 app.get("/success", (req, res) => {
-  res.send("Welcome " + req.profile);
+  res.send("Welcome " + req.user);
 });
 
 app.get(
