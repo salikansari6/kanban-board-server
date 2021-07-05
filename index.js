@@ -3,15 +3,20 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const dotenv = require("dotenv");
+const session = require("cookie-session");
 const User = require("./models/User");
-const { deserializeUser } = require("passport");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(
+  session({
+    keys: ["fargo"],
+  })
+);
 app.use(passport.initialize());
+app.use(passport.session());
 require("dotenv").config();
 
 const PORT = process.env.PORT || 4000;
@@ -56,8 +61,9 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   console.log("Deserializing user with id " + id);
+  let deserializedUser;
   try {
-    const deserializedUser = await User.findById(id);
+    deserializedUser = await User.findById(id);
   } catch (err) {
     done(err, null);
   }
@@ -88,6 +94,6 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/failed" }),
   function (req, res) {
     // Successful authentication, redirect home.
-    res.redirect("http://localhost:3000");
+    res.redirect("/success");
   }
 );
