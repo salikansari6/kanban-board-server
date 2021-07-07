@@ -28,4 +28,24 @@ router.post("/add/:userId", async (req, res) => {
   res.json(newCollection);
 });
 
+router.put("/moveColumn/:userId", async (req, res) => {
+  console.log(req.body.card);
+  console.log(req.body.fromColumnIndex);
+  console.log(req.body.toColumnIndex);
+
+  const taskCollection = await TaskCollection.findOne({
+    userId: req.params.userId,
+  });
+  taskCollection.tasks[req.body.toColumnIndex].items.splice(
+    taskCollection.tasks[req.body.toColumnIndex].items.length,
+    0,
+    taskCollection.tasks[req.body.fromColumnIndex].items.splice(
+      req.body.card.index,
+      1
+    )[0]
+  );
+  const newCollection = await taskCollection.save();
+  res.send(newCollection);
+});
+
 module.exports = router;
