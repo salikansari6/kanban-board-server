@@ -19,6 +19,19 @@ router.post("/:userId", async (req, res) => {
   res.send(newUserTasks);
 });
 
+router.delete("/deleteCard/:userId", async (req, res) => {
+  console.log(req.body.cardId);
+  console.log(req.body.columnIndex);
+  const taskCollection = await TaskCollection.findOne({
+    userId: req.params.userId,
+  });
+  taskCollection.tasks[req.body.columnIndex] = taskCollection.tasks[
+    req.body.columnIndex
+  ].items.filter((i) => i.id !== req.body.cardId);
+  await taskCollection.save();
+  res.json({ success: true });
+});
+
 router.post("/add/:userId", async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
