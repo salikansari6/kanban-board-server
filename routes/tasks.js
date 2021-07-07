@@ -25,7 +25,7 @@ router.delete("/deleteCard/:userId", async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });
-  taskCollection.tasks[req.body.columnIndex] = taskCollection.tasks[
+  taskCollection.tasks[req.body.columnIndex].items = taskCollection.tasks[
     req.body.columnIndex
   ].items.filter((i) => i.id !== req.body.cardId);
   await taskCollection.save();
