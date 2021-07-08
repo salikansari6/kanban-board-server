@@ -20,14 +20,36 @@ router.post("/:userId", async (req, res) => {
 });
 
 router.delete("/deleteCard/:userId", async (req, res) => {
-  console.log(req.body.cardId);
-  console.log(req.body.columnIndex);
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });
   taskCollection.tasks[req.body.columnIndex].items = taskCollection.tasks[
     req.body.columnIndex
   ].items.filter((i) => i.id !== req.body.cardId);
+  await taskCollection.save();
+  res.json({ success: true });
+});
+
+router.put("/updateCard/:userId", async (req, res) => {
+  const { updatedValues, columnIndex, id } = req.body;
+
+  const taskCollection = await TaskCollection.findOne({
+    userId: req.params.userId,
+  });
+
+  taskCollection.tasks[columnIndex].items = taskCollection.tasks[
+    columnIndex
+  ].items.map((t) => {
+    if (t.id !== id) {
+      return t;
+    } else {
+      return {
+        ...t.toObject(),
+        ...updatedValues,
+      };
+    }
+  });
+
   await taskCollection.save();
   res.json({ success: true });
 });
