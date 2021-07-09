@@ -1,13 +1,13 @@
 const TaskCollection = require("../models/TaskCollection");
-
+const { isAuthenticated } = require("../middlewares/isAuthenticated");
 const router = require("express").Router();
 
-router.get("/:userId", async (req, res) => {
+router.get("/:userId", isAuthenticated, async (req, res) => {
   const result = await TaskCollection.find({ userId: req.params.userId });
   res.send(result);
 });
 
-router.post("/:userId", async (req, res) => {
+router.post("/:userId", isAuthenticated, async (req, res) => {
   const newUserTasks = await TaskCollection.create({
     userId: req.params.userId,
     tasks: [
@@ -19,7 +19,7 @@ router.post("/:userId", async (req, res) => {
   res.send(newUserTasks);
 });
 
-router.delete("/deleteCard/:userId", async (req, res) => {
+router.delete("/deleteCard/:userId", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });
@@ -30,7 +30,7 @@ router.delete("/deleteCard/:userId", async (req, res) => {
   res.json({ success: true });
 });
 
-router.put("/updateCard/:userId", async (req, res) => {
+router.put("/updateCard/:userId", isAuthenticated, async (req, res) => {
   const { updatedValues, columnIndex, id } = req.body;
 
   const taskCollection = await TaskCollection.findOne({
@@ -54,7 +54,7 @@ router.put("/updateCard/:userId", async (req, res) => {
   res.json({ success: true });
 });
 
-router.post("/add/:userId", async (req, res) => {
+router.post("/add/:userId", isAuthenticated, async (req, res) => {
   console.log(req.user._id);
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
@@ -64,7 +64,7 @@ router.post("/add/:userId", async (req, res) => {
   res.json(newCollection);
 });
 
-router.put("/moveItem/:userId", async (req, res) => {
+router.put("/moveItem/:userId", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });
@@ -80,7 +80,7 @@ router.put("/moveItem/:userId", async (req, res) => {
   res.json({ success: true });
 });
 
-router.put("/moveColumn/:userId", async (req, res) => {
+router.put("/moveColumn/:userId", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });
