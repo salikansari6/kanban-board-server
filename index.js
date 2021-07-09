@@ -12,14 +12,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   })
 );
 app.use(
   session({
     maxAge: 24 * 60 * 60 * 1000,
-    keys: ["fargo"],
+    keys: [process.env.COOKIE_SECRET],
   })
 );
 app.use(passport.initialize());
