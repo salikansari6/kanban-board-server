@@ -92,9 +92,15 @@ app.get("/failed", (req, res) => {
   res.send("Failed to login");
 });
 
-app.get("/success", (req, res) => {
-  res.send("Welcome " + req.user);
+//GET ROUTE FOR TESTING PURPOSE,CONVERT TO POST ROUTE LATER
+app.get("/logout", async (req, res) => {
+  req.logOut();
+  res.redirect(process.env.CORS_ORIGIN);
 });
+
+// app.get("/login", async (req, res) => {
+//   res.send("login page");
+// });
 
 app.get(
   "/auth/google/",
@@ -106,7 +112,7 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/failed" }),
   function (req, res) {
     // Successful authentication, redirect home.
-    res.redirect("/success");
+    res.redirect(process.env.CORS_ORIGIN + "/kanban");
   }
 );
 
