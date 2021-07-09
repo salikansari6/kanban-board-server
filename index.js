@@ -5,6 +5,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const session = require("cookie-session");
 const User = require("./models/User");
+const TaskCollection = require("./models/TaskCollection");
 const app = express();
 
 require("dotenv").config();
@@ -52,6 +53,14 @@ passport.use(
           googleId: profile.id,
         });
         user = await newUser.save();
+        await TaskCollection.create({
+          userId: user._id,
+          tasks: [
+            { title: "To-Do", columnColor: "red", items: [] },
+            { title: "In-Progress", columnColor: "yellow", items: [] },
+            { title: "Done", columnColor: "green", items: [] },
+          ],
+        });
       }
 
       cb(null, user);
