@@ -55,6 +55,7 @@ router.put("/updateCard/:userId", async (req, res) => {
 });
 
 router.post("/add/:userId", async (req, res) => {
+  console.log(req.user._id);
   const taskCollection = await TaskCollection.findOne({
     userId: req.params.userId,
   });

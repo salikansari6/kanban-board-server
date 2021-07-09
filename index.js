@@ -5,19 +5,25 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const session = require("cookie-session");
 const User = require("./models/User");
-
 const app = express();
+
+require("dotenv").config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(
   session({
+    maxAge: 24 * 60 * 60 * 1000,
     keys: ["fargo"],
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
-require("dotenv").config();
 
 const PORT = process.env.PORT || 4000;
 
@@ -28,8 +34,6 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }, () => {
 app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
 });
-
-app.use("/tasks", require("./routes/tasks"));
 
 passport.use(
   new GoogleStrategy(
@@ -60,7 +64,6 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  console.log("Deserializing user with id " + id);
   let deserializedUser;
   try {
     deserializedUser = await User.findById(id);
@@ -97,3 +100,5 @@ app.get(
     res.redirect("/success");
   }
 );
+
+app.use("/tasks", require("./routes/tasks"));
