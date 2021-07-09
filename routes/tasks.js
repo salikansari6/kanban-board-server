@@ -2,14 +2,14 @@ const TaskCollection = require("../models/TaskCollection");
 const { isAuthenticated } = require("../middlewares/isAuthenticated");
 const router = require("express").Router();
 
-router.get("/:userId", isAuthenticated, async (req, res) => {
-  const result = await TaskCollection.find({ userId: req.params.userId });
+router.get("/", isAuthenticated, async (req, res) => {
+  const result = await TaskCollection.find({ userId: req.user._id });
   res.send(result);
 });
 
-router.post("/:userId", isAuthenticated, async (req, res) => {
+router.post("/", isAuthenticated, async (req, res) => {
   const newUserTasks = await TaskCollection.create({
-    userId: req.params.userId,
+    userId: req.user._id,
     tasks: [
       { title: "To-Do", columnColor: "red", items: [] },
       { title: "In-Progress", columnColor: "yellow", items: [] },
@@ -19,9 +19,9 @@ router.post("/:userId", isAuthenticated, async (req, res) => {
   res.send(newUserTasks);
 });
 
-router.delete("/deleteCard/:userId", isAuthenticated, async (req, res) => {
+router.delete("/deleteCard", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
-    userId: req.params.userId,
+    userId: req.user._id,
   });
   taskCollection.tasks[req.body.columnIndex].items = taskCollection.tasks[
     req.body.columnIndex
@@ -30,11 +30,11 @@ router.delete("/deleteCard/:userId", isAuthenticated, async (req, res) => {
   res.json({ success: true });
 });
 
-router.put("/updateCard/:userId", isAuthenticated, async (req, res) => {
+router.put("/updateCard", isAuthenticated, async (req, res) => {
   const { updatedValues, columnIndex, id } = req.body;
 
   const taskCollection = await TaskCollection.findOne({
-    userId: req.params.userId,
+    userId: req.user._id,
   });
 
   taskCollection.tasks[columnIndex].items = taskCollection.tasks[
@@ -54,19 +54,18 @@ router.put("/updateCard/:userId", isAuthenticated, async (req, res) => {
   res.json({ success: true });
 });
 
-router.post("/add/:userId", isAuthenticated, async (req, res) => {
-  console.log(req.user._id);
+router.post("/add", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
-    userId: req.params.userId,
+    userId: req.user._id,
   });
   taskCollection.tasks[req.body.columnIndex].items.unshift(req.body.card);
   const newCollection = await taskCollection.save();
   res.json(newCollection);
 });
 
-router.put("/moveItem/:userId", isAuthenticated, async (req, res) => {
+router.put("/moveItem", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
-    userId: req.params.userId,
+    userId: req.user._id,
   });
   taskCollection.tasks[req.body.toColumnIndex].items.splice(
     req.body.hoveredOverIndex,
@@ -80,9 +79,9 @@ router.put("/moveItem/:userId", isAuthenticated, async (req, res) => {
   res.json({ success: true });
 });
 
-router.put("/moveColumn/:userId", isAuthenticated, async (req, res) => {
+router.put("/moveColumn", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
-    userId: req.params.userId,
+    userId: req.user._id,
   });
   taskCollection.tasks[req.body.toColumnIndex].items.splice(
     taskCollection.tasks[req.body.toColumnIndex].items.length,
