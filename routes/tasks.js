@@ -8,18 +8,6 @@ router.get("/", isAuthenticated, async (req, res) => {
   res.send(result);
 });
 
-router.post("/", isAuthenticated, async (req, res) => {
-  const newUserTasks = await TaskCollection.create({
-    userId: req.user._id,
-    tasks: [
-      { title: "To-Do", columnColor: "red", items: [] },
-      { title: "In-Progress", columnColor: "yellow", items: [] },
-      { title: "Done", columnColor: "green", items: [] },
-    ],
-  });
-  res.send(newUserTasks);
-});
-
 router.delete("/deleteCard", isAuthenticated, async (req, res) => {
   const taskCollection = await TaskCollection.findOne({
     userId: req.user._id,
