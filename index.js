@@ -7,6 +7,7 @@ const session = require("cookie-session");
 const User = require("./models/User");
 const TaskCollection = require("./models/TaskCollection");
 const app = express();
+const path = require("path");
 
 require("dotenv").config();
 app.use(express.json());
@@ -34,6 +35,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }, () => {
 
 app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
+});
+
+app.get("/api/message", (req, res) => {
+  res.send("FINA-FUCKING-LY");
 });
 
 passport.use(
@@ -84,10 +89,6 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("server is working");
-});
-
 app.get("/failed", (req, res) => {
   res.send("Failed to login");
 });
@@ -95,12 +96,12 @@ app.get("/failed", (req, res) => {
 //GET ROUTE FOR TESTING PURPOSE,CONVERT TO POST ROUTE LATER
 app.get("/logout", async (req, res) => {
   req.logOut();
-  res.redirect(process.env.CORS_ORIGIN);
+  res.redirect("/");
 });
 
-// app.get("/login", async (req, res) => {
-//   res.send("login page");
-// });
+app.get("/dummy", (req, res) => {
+  res.send("WHAT THE FUCK");
+});
 
 app.get(
   "/auth/google/",
@@ -112,8 +113,23 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/failed" }),
   function (req, res) {
     // Successful authentication, redirect home.
-    res.redirect(process.env.CORS_ORIGIN + "/kanban");
+    res.redirect("/kanban");
   }
 );
 
+app.get("/user", (req, res, next) => {
+  res.send(req.user);
+});
+
 app.use("/tasks", require("./routes/tasks"));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+  app.get(["*"], (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("server is working");
+  });
+}
