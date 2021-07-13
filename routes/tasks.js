@@ -3,7 +3,6 @@ const { isAuthenticated } = require("../middlewares/isAuthenticated");
 const router = require("express").Router();
 
 router.get("/", isAuthenticated, async (req, res) => {
-  console.log(req.user);
   const result = await TaskCollection.find({ userId: req.user._id });
   res.send(result);
 });
