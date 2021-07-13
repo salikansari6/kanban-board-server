@@ -96,7 +96,12 @@ app.get("/failed", (req, res) => {
 //GET ROUTE FOR TESTING PURPOSE,CONVERT TO POST ROUTE LATER
 app.get("/logout", async (req, res) => {
   req.logOut();
-  res.redirect("/");
+
+  if (process.env.NODE_ENV === "development") {
+    res.redirect(process.env.CORS_ORIGIN);
+  } else {
+    res.redirect("/");
+  }
 });
 
 app.get("/dummy", (req, res) => {
@@ -113,7 +118,11 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/failed" }),
   function (req, res) {
     // Successful authentication, redirect home.
-    res.redirect("/kanban");
+    if (process.env.NODE_ENV === "development") {
+      res.redirect(`${process.env.CORS_ORIGIN}/kanban`);
+    } else {
+      res.redirect("/kanban");
+    }
   }
 );
 
